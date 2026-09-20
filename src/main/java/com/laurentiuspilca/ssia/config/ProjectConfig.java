@@ -1,40 +1,26 @@
 package com.laurentiuspilca.ssia.config;
 
-import com.laurentiuspilca.ssia.services.AuthenticationProviderService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-public class ProjectConfig extends WebSecurityConfigurerAdapter {
+public class ProjectConfig {
+    private final AuthenticationProvider authenticationProvider;
 
-    @Autowired
-    private AuthenticationProviderService authenticationProvider;
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
+    public ProjectConfig(AuthenticationProvider authenticationProvider) {
+        this.authenticationProvider = authenticationProvider;
     }
 
     @Bean
-    public SCryptPasswordEncoder sCryptPasswordEncoder() {
-        return new SCryptPasswordEncoder();
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(authenticationProvider);
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.formLogin()
-            .defaultSuccessUrl("/main", true);
-        http.authorizeRequests().anyRequest().authenticated();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+            throws Exception {
+        http.httpBasic(Customizer.withDefaults());
+        http.authenticationProvider(authenticationProvider);
+        http.authorizeHttpRequests(c -> c.anyRequest().authenticated());
+        return http.build();
     }
 }
