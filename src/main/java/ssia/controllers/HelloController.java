@@ -10,4 +10,16 @@ public class HelloController {
     public String hello() {
         return "Hello!";
     }
+
+    @GetMapping("/ciao")
+    public String ciao() {
+        return "Ciao!";
+    }
+
+
+    @GetMapping("/hola")
+    public String hola() {
+        return "Hola!";
+    }
+
 }
