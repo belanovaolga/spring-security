@@ -1,6 +1,6 @@
 package ssia.service;
 
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ssia.model.Document;
 import ssia.repository.DocumentRepository;
@@ -14,7 +14,7 @@ public class DocumentService {
         this.documentRepository = documentRepository;
     }
 
-    @PostAuthorize("hasPermission(returnObject, 'ROLE_admin')")
+    @PreAuthorize("hasPermission(#code, 'document', 'ROLE_admin')")
     public Document getDocument(String code) {
         return documentRepository.findDocument(code);
     }
