@@ -8,25 +8,24 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import ssia.roles.Authorities;
+import ssia.utils.Authorities;
+import ssia.utils.Names;
 
 @Configuration
 @EnableMethodSecurity
 public class ProjectConfig {
 
     private static final String PASSWORD = "12345";
-    private static final String NATALIE = "natalie";
-    private static final String EMMA = "emma";
 
     @Bean
     public UserDetailsService userDetailsService() {
 
         var service = new InMemoryUserDetailsManager();
-        var u1 = User.withUsername(NATALIE)
+        var u1 = User.withUsername(Names.NATALIE)
                 .password(PASSWORD)
                 .authorities(Authorities.READ_AUTHORITY)
                 .build();
-        var u2 = User.withUsername(EMMA)
+        var u2 = User.withUsername(Names.EMMA)
                 .password(PASSWORD)
                 .authorities(Authorities.WRITE_AUTHORITY)
                 .build();

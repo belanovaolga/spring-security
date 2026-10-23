@@ -1,4 +1,4 @@
-package ssia.roles;
+package ssia.utils;
 
 public class Authorities {
     public static final String READ_AUTHORITY = "read";
