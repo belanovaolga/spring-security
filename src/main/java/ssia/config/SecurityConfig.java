@@ -86,7 +86,10 @@ public class SecurityConfig {
                 .clientSecret("secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("https://www.manning.com/authorized")
+//                авторизация и получение кода:
+//http://localhost:8080/oauth2/authorize?response_type=code&client_id=client&scope=openid&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauthorized&code_challenge=QYPAZ5NU8yvtlQ9erXrUYR-T5AGCjCF47vN-KsaI2A8&code_challenge_method=S256
+                .redirectUri("http://localhost:8080/authorized")
+                .redirectUri("https://oauth.pstmn.io/v1/browser-callback")
                 .scope(OidcScopes.OPENID)
                 .build();
 
