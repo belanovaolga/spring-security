@@ -24,6 +24,8 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.OAuth2TokenFormat;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -33,6 +35,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Duration;
 import java.util.UUID;
 
 @Configuration
@@ -85,12 +88,12 @@ public class SecurityConfig {
                 .clientId("client")
                 .clientSecret("secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                авторизация и получение кода:
-//http://localhost:8080/oauth2/authorize?response_type=code&client_id=client&scope=openid&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauthorized&code_challenge=QYPAZ5NU8yvtlQ9erXrUYR-T5AGCjCF47vN-KsaI2A8&code_challenge_method=S256
-                .redirectUri("http://localhost:8080/authorized")
-                .redirectUri("https://oauth.pstmn.io/v1/browser-callback")
-                .scope(OidcScopes.OPENID)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
+                        .accessTokenTimeToLive(Duration.ofHours(12))
+                        .build())
+                .scope("CUSTOM")
                 .build();
 
         return new InMemoryRegisteredClientRepository(registeredClient);
