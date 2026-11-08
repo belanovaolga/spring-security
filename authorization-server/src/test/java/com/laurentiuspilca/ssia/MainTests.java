@@ -7,13 +7,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import ssia.Main;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(classes = Main.class)
 @AutoConfigureMockMvc
 public class MainTests {
 
@@ -21,10 +22,10 @@ public class MainTests {
     private MockMvc mvc;
 
     @Test
-    @DisplayName("Test calling /hello endpoint without authentication returns unauthorized.")
+    @DisplayName("Calling /hello without authentication redirects to login.")
     public void helloUnauthenticated() throws Exception {
         mvc.perform(get("/hello"))
-              .andExpect(status().isUnauthorized());
+              .andExpect(status().isFound());
     }
 
     @Test
