@@ -9,16 +9,24 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class ProjectConfig {
 
-    @Value("${keySetURI}")
-    private String keySetUri;
+    @Value("${introspectionUri}")
+    private String introspectionUri;
+
+    @Value("${resourceserver.clientID}")
+    private String resourceServerClientID;
+
+    @Value("${resourceserver.secret}")
+    private String resourceServerSecret;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests(c -> c.anyRequest().authenticated());
         http.oauth2ResourceServer(
-                c -> c.jwt(
-                        j -> j.jwkSetUri(keySetUri))
+                c -> c.opaqueToken(
+                        o -> o.introspectionUri(introspectionUri)
+                                .introspectionClientCredentials(resourceServerClientID, resourceServerSecret)
+                )
         );
 
         return http.build();
