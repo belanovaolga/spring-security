@@ -5,6 +5,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -41,25 +43,18 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain asFilterChain(HttpSecurity http) throws Exception {
-
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(Customizer.withDefaults());
-
-        http.exceptionHandling((e) ->
-                e.authenticationEntryPoint(
-                        new LoginUrlAuthenticationEntryPoint("/login"))
-        );
+        http.exceptionHandling(c -> c.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")));
         return http.build();
     }
 
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        http.formLogin(Customizer.withDefaults());
         http.authorizeHttpRequests(c -> c.anyRequest().authenticated());
-
+        http.formLogin(Customizer.withDefaults());
         return http.build();
     }
 
@@ -86,10 +81,7 @@ public class SecurityConfig {
                 .clientSecret("secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                авторизация и получение кода:
-//http://localhost:8080/oauth2/authorize?response_type=code&client_id=client&scope=openid&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauthorized&code_challenge=QYPAZ5NU8yvtlQ9erXrUYR-T5AGCjCF47vN-KsaI2A8&code_challenge_method=S256
-                .redirectUri("http://localhost:8080/authorized")
-                .redirectUri("https://oauth.pstmn.io/v1/browser-callback")
+                .redirectUri("http://localhost:8080/login/oauth2/code/my_authorization_server")
                 .scope(OidcScopes.OPENID)
                 .build();
 
@@ -117,8 +109,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
+    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
+        return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+    }
+
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings(@Value("${app.issuer-uri}") String issuerUri) {
+        return AuthorizationServerSettings.builder().issuer(issuerUri).build();
     }
 
 }
