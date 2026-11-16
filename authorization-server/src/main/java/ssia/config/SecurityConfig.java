@@ -38,30 +38,30 @@ import java.util.UUID;
 @Configuration
 public class SecurityConfig {
 
-    @Bean
-    @Order(1)
-    public SecurityFilterChain asFilterChain(HttpSecurity http) throws Exception {
-
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                .oidc(Customizer.withDefaults());
-
-        http.exceptionHandling((e) ->
-                e.authenticationEntryPoint(
-                        new LoginUrlAuthenticationEntryPoint("/login"))
-        );
-        return http.build();
-    }
-
-    @Bean
-    @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-
-        http.formLogin(Customizer.withDefaults());
-        http.authorizeHttpRequests(c -> c.anyRequest().authenticated());
-
-        return http.build();
-    }
+//    @Bean
+//    @Order(1)
+//    public SecurityFilterChain asFilterChain(HttpSecurity http) throws Exception {
+//
+//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+//        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+//                .oidc(Customizer.withDefaults());
+//
+//        http.exceptionHandling((e) ->
+//                e.authenticationEntryPoint(
+//                        new LoginUrlAuthenticationEntryPoint("/login"))
+//        );
+//        return http.build();
+//    }
+//
+//    @Bean
+//    @Order(2)
+//    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+//
+//        http.formLogin(Customizer.withDefaults());
+//        http.authorizeHttpRequests(c -> c.anyRequest().authenticated());
+//
+//        return http.build();
+//    }
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -80,45 +80,42 @@ public class SecurityConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
 
-        RegisteredClient registeredClient = RegisteredClient
+        var registeredClient = RegisteredClient
                 .withId(UUID.randomUUID().toString())
                 .clientId("client")
                 .clientSecret("secret")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-//                авторизация и получение кода:
-//http://localhost:8080/oauth2/authorize?response_type=code&client_id=client&scope=openid&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauthorized&code_challenge=QYPAZ5NU8yvtlQ9erXrUYR-T5AGCjCF47vN-KsaI2A8&code_challenge_method=S256
-                .redirectUri("http://localhost:8080/authorized")
-                .redirectUri("https://oauth.pstmn.io/v1/browser-callback")
+                .clientAuthenticationMethod(
+                        ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(
+                        AuthorizationGrantType.CLIENT_CREDENTIALS)
                 .scope(OidcScopes.OPENID)
                 .build();
-
         return new InMemoryRegisteredClientRepository(registeredClient);
     }
 
-    @Bean
-    public JWKSource<SecurityContext> jwkSource() throws NoSuchAlgorithmException {
-
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
-
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-
-        RSAKey rsaKey = new RSAKey.Builder(publicKey)
-                .privateKey(privateKey)
-                .keyID(UUID.randomUUID().toString())
-                .build();
-
-        JWKSet jwkSet = new JWKSet(rsaKey);
-
-        return new ImmutableJWKSet<>(jwkSet);
-    }
-
-    @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
-    }
+//    @Bean
+//    public JWKSource<SecurityContext> jwkSource() throws NoSuchAlgorithmException {
+//
+//        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+//        keyPairGenerator.initialize(2048);
+//
+//        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+//        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
+//        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+//
+//        RSAKey rsaKey = new RSAKey.Builder(publicKey)
+//                .privateKey(privateKey)
+//                .keyID(UUID.randomUUID().toString())
+//                .build();
+//
+//        JWKSet jwkSet = new JWKSet(rsaKey);
+//
+//        return new ImmutableJWKSet<>(jwkSet);
+//    }
+//
+//    @Bean
+//    public AuthorizationServerSettings authorizationServerSettings() {
+//        return AuthorizationServerSettings.builder().build();
+//    }
 
 }
